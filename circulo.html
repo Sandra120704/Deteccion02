@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pelota con Mano</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+  <!-- p5.js -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/p5.min.js"></script>
+  <!-- ml5.js -->
+  <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
+</head>
+<body>
+  <script>
+    let handPose; // ¡Usa consistentemente esta variable!
+    let video;
+    let hands = [];
+
+    function setup() {
+      createCanvas(640, 480);
+      video = createCapture(VIDEO);
+      video.size(640, 480);
+      video.hide();
+
+      
+      handpose = ml5.handpose(video, modelReady);
+      handpose.on('predict', gotResults); // Cambiar 'data' a 'predict'
+    }
+
+    function modelReady() {
+      console.log('Modelo listo');
+    }
+
+    function gotResults(results) {
+      hands = results;
+    }
+
+    function draw() {
+      background(0);
+      image(video, 0, 0, width, height);
+
+      if (hands.length > 0) {
+        let hand = hands[0];
+        if (hand.landmarks.length >= 9) {
+          let thumb = hand.landmarks[4];
+          let index = hand.landmarks[8];
+
+          let centerX = (thumb[0] + index[0]) / 2;
+          let centerY = (thumb[1] + index[1]) / 2;
+          let pinch = dist(thumb[0], thumb[1], index[0], index[1]);
+
+          let circleColor = 'red';
+          if (pinch > 100) circleColor = 'yellow';
+          if (pinch > 200) circleColor = 'green';
+
+          fill(circleColor);
+          noStroke();
+          ellipse(centerX, centerY, pinch);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
