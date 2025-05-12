@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+
+  <style>
+    body {
+      background-color: antiquewhite;
+    }
+    .tabla-img {
+      margin: 20px auto;
+    }
+    canvas {
+      display: block;
+      margin: 20px auto;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+    }
+      #demo {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+
+  <p id="demo">Seleccionar una imagen para clasificar</p>
+
+  
+  <table class="tabla-img" border="1">
+    <tr>
+      <td><img src="img/imagen1.jpeg" width="300" height="300" onclick="clasificarImagen(this)"></td>
+
+      <td><img src="img/imagen2.jpeg" width="300" height="300" onclick="clasificarImagen(this)"></td>
+
+      <td><img src="img/imagen3.jpeg" width="300" height="300" onclick="clasificarImagen(this)"></td>
+    </tr>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.5/lib/p5.min.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+
+  <script>
+    let classifier;
+
+    let img;
+
+    let resultadoP;
+
+    //let capa;
+
+    function preload() {
+      classifier = ml5.imageClassifier('MobileNet');
+    }
+
+    function setup() {
+      createCanvas(300, 250);
+      resultadoP = document.getElementById("demo");
+      noLoop();    
+    }
+
+    function draw() {
+      if(img) {
+        image(img, 0, 0, width, height);
+      }
+    }
+    
+    
+    function clasificarImagen(elemento){
+      const ruta = elemento.getAttribute("src");
+
+      //cargar la imagen  
+      loadImage(ruta,(cargada)=>{
+        img = cargada;
+        redraw();
+        classifier.classify(img, gotResults);
+      });
+    }    
+
+    function gotResults(results){
+       console.error(results);
+     
+
+     const label = results[0].label;
+      const confianza = (results[0].confidence * 100).toFixed(2);
+      resultadoP.innerHTML =  `${label} - ${confianza}%`
+}
+
+  </script>
+  
+</body>
+</html>
